@@ -1,0 +1,7 @@
+jolokia:
+  url: http://localhost:8161/api/jolokia
+  username: admin
+  password: admin
+
+broker:
+  name: activemq

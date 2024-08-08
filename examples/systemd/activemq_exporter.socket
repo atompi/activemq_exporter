@@ -1,0 +1,8 @@
+[Unit]
+Description=ActiveMQ Exporter
+
+[Socket]
+ListenStream=9168
+
+[Install]
+WantedBy=sockets.target

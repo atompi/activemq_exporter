@@ -1,0 +1,11 @@
+[Unit]
+Description=ActiveMQ Exporter
+Requires=activemq_exporter.socket
+
+[Service]
+User=activemq_exporter
+EnvironmentFile=/etc/sysconfig/activemq_exporter
+ExecStart=/usr/sbin/activemq_exporter --web.systemd-socket $OPTIONS
+
+[Install]
+WantedBy=multi-user.target

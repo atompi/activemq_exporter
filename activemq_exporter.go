@@ -18,6 +18,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	stdlog "log"
 	"net/http"
 	_ "net/http/pprof"
@@ -28,9 +29,11 @@ import (
 
 	"github.com/prometheus/common/promlog"
 	"github.com/prometheus/common/promlog/flag"
+	"gopkg.in/yaml.v3"
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/atompi/activemq_exporter/collector"
+	"github.com/atompi/activemq_exporter/options"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
@@ -171,7 +174,7 @@ func main() {
 		maxRequests = kingpin.Flag(
 			"web.max-requests",
 			"Maximum number of parallel scrape requests. Use 0 to disable.",
-		).Default("40").Int()
+		).Default("5").Int()
 		disableDefaultCollectors = kingpin.Flag(
 			"collector.disable-defaults",
 			"Set all collectors to disabled by default.",
@@ -179,6 +182,10 @@ func main() {
 		maxProcs = kingpin.Flag(
 			"runtime.gomaxprocs", "The target number of CPUs Go will run on (GOMAXPROCS)",
 		).Envar("GOMAXPROCS").Default("1").Int()
+		configFile = kingpin.Flag(
+			"collector.config.file",
+			"ActiveMQ Exporter configuration file path.",
+		).Default("./activemq_exporter.yaml").String()
 		toolkitFlags = kingpinflag.AddFlags(kingpin.CommandLine, ":9100")
 	)
 
@@ -200,6 +207,23 @@ func main() {
 	}
 	runtime.GOMAXPROCS(*maxProcs)
 	level.Debug(logger).Log("msg", "Go MAXPROCS", "procs", runtime.GOMAXPROCS(0))
+
+	f, err := os.Open(*configFile)
+	if err != nil {
+		level.Error(logger).Log("err", err)
+		os.Exit(1)
+	}
+	defer f.Close()
+	buf, err := io.ReadAll(f)
+	if err != nil {
+		level.Error(logger).Log("err", err)
+		os.Exit(1)
+	}
+	err = yaml.Unmarshal(buf, options.Opts)
+	if err != nil {
+		level.Error(logger).Log("err", err)
+		os.Exit(1)
+	}
 
 	http.Handle(*metricsPath, newHandler(!*disableExporterMetrics, *maxRequests, logger))
 	if *metricsPath != "/" {

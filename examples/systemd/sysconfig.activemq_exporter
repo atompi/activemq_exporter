@@ -1,0 +1,1 @@
+OPTIONS="--config=/etc/activemq_exporter/activemq_exporter.yaml"
