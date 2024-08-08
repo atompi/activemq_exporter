@@ -17,6 +17,8 @@ limitations under the License.
 package collector
 
 import (
+	"time"
+
 	"github.com/go-kit/log"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -27,18 +29,28 @@ const (
 )
 
 func init() {
-	registerCollector(topicSubsystem, defaultEnabled, NewTopicCollector)
-}
-
-func (c *topicCollector) Update(ch chan<- prometheus.Metric) error {
-	var metricType prometheus.ValueType
-	return nil
+	registerCollector(topicSubsystem, defaultDisabled, NewTopicCollector)
 }
 
 type topicCollector struct {
+	now    typedDesc
 	logger log.Logger
 }
 
 func NewTopicCollector(logger log.Logger) (Collector, error) {
-	return &topicCollector{}, nil
+	return &topicCollector{
+		now: typedDesc{prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, topicSubsystem, "now"),
+			"System time in seconds since epoch (1970).",
+			nil, nil,
+		), prometheus.GaugeValue},
+		logger: logger,
+	}, nil
+}
+
+func (c *topicCollector) Update(ch chan<- prometheus.Metric) error {
+	now := time.Now()
+	nowSec := float64(now.UnixNano()) / 1e9
+	ch <- c.now.mustNewConstMetric(nowSec)
+	return nil
 }

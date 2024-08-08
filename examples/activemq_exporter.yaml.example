@@ -1,7 +1,12 @@
 jolokia:
   url: http://localhost:8161/api/jolokia
+  basic_auth: true
   username: admin
   password: admin
+  cert: ./server.pem
+  key: ./server.key
+  ca: ./ca.pem
+  insecure_skip_verify: false
 
 broker:
   name: activemq

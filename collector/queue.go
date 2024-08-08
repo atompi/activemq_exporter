@@ -17,6 +17,8 @@ limitations under the License.
 package collector
 
 import (
+	"time"
+
 	"github.com/go-kit/log"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -27,18 +29,28 @@ const (
 )
 
 func init() {
-	registerCollector(queueSubsystem, defaultEnabled, NewQueueCollector)
-}
-
-func (c *queueCollector) Update(ch chan<- prometheus.Metric) error {
-	var metricType prometheus.ValueType
-	return nil
+	registerCollector(queueSubsystem, defaultDisabled, NewQueueCollector)
 }
 
 type queueCollector struct {
+	now    typedDesc
 	logger log.Logger
 }
 
 func NewQueueCollector(logger log.Logger) (Collector, error) {
-	return &queueCollector{}, nil
+	return &queueCollector{
+		now: typedDesc{prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, queueSubsystem, "now"),
+			"System time in seconds since epoch (1970).",
+			nil, nil,
+		), prometheus.GaugeValue},
+		logger: logger,
+	}, nil
+}
+
+func (c *queueCollector) Update(ch chan<- prometheus.Metric) error {
+	now := time.Now()
+	nowSec := float64(now.UnixNano()) / 1e9
+	ch <- c.now.mustNewConstMetric(nowSec)
+	return nil
 }

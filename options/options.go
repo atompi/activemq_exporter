@@ -17,9 +17,14 @@ limitations under the License.
 package options
 
 type JolokiaOptions struct {
-	URL      string `yaml:"url"`
-	Username string `yaml:"username"`
-	Password string `yaml:"password"`
+	URL                string `yaml:"url"`
+	BasicAuth          bool   `yaml:"basic_auth"`
+	Username           string `yaml:"username"`
+	Password           string `yaml:"password"`
+	Cert               string `yaml:"cert"`
+	Key                string `yaml:"key"`
+	CA                 string `yaml:"ca"`
+	InsecureSkipVerify bool   `yaml:"insecure_skip_verify"`
 }
 
 type BrokerOptions struct {
