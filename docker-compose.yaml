@@ -1,0 +1,11 @@
+---
+name: "activemq-exporter"
+
+services:
+  activemq-exporter:
+    image: "atompi/activemq-exporter:latest"
+    command: "--collector.queue --collector.topic --web.disable-exporter-metrics"
+    ports:
+      - "9168:9168"
+    volumes:
+      - ./activemq_exporter.yaml:/app/activemq_exporter.yaml
