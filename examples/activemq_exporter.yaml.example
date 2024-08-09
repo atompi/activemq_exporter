@@ -1,5 +1,5 @@
 jolokia:
-  url: http://localhost:8161/api/jolokia
+  url: http://localhost:8161/api/jolokia/read
   basic_auth: true
   username: admin
   password: admin
