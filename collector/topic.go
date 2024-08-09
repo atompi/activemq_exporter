@@ -17,8 +17,6 @@ limitations under the License.
 package collector
 
 import (
-	"time"
-
 	"github.com/go-kit/log"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -30,6 +28,25 @@ const (
 
 func init() {
 	registerCollector(topicSubsystem, defaultDisabled, NewTopicCollector)
+}
+
+type TopicValue struct {
+	MemoryUsageByteCount int    `json:"MemoryUsageByteCount"`
+	MemoryPercentUsage   int    `json:"MemoryPercentUsage"`
+	InFlightCount        int    `json:"InFlightCount"`
+	ForwardCount         int    `json:"ForwardCount"`
+	Name                 string `json:"Name"`
+	EnqueueCount         int    `json:"EnqueueCount"`
+	ConsumerCount        int    `json:"ConsumerCount"`
+	MemoryLimit          int    `json:"MemoryLimit"`
+	DequeueCount         int    `json:"DequeueCount"`
+	ProducerCount        int    `json:"ProducerCount"`
+}
+
+type Topic struct {
+	Status    int        `json:"status"`
+	Timestamp int        `json:"timestamp"`
+	Value     TopicValue `json:"value"`
 }
 
 type topicCollector struct {
@@ -49,8 +66,7 @@ func NewTopicCollector(logger log.Logger) (Collector, error) {
 }
 
 func (c *topicCollector) Update(ch chan<- prometheus.Metric) error {
-	now := time.Now()
-	nowSec := float64(now.UnixNano()) / 1e9
-	ch <- c.now.mustNewConstMetric(nowSec)
+	now := broker.Timestamp
+	ch <- c.now.mustNewConstMetric(float64(now))
 	return nil
 }

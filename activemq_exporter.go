@@ -186,7 +186,7 @@ func main() {
 			"collector.config.file",
 			"ActiveMQ Exporter configuration file path.",
 		).Default("./activemq_exporter.yaml").String()
-		toolkitFlags = kingpinflag.AddFlags(kingpin.CommandLine, ":9100")
+		toolkitFlags = kingpinflag.AddFlags(kingpin.CommandLine, ":9168")
 	)
 
 	promlogConfig := &promlog.Config{}

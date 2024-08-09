@@ -37,6 +37,8 @@ const (
 	brokerSubsystem = "broker"
 )
 
+var broker = &Broker{}
+
 func init() {
 	registerCollector(brokerSubsystem, defaultEnabled, NewBrokerCollector)
 }
@@ -49,11 +51,11 @@ type QueueProducer struct {
 	ObjectName string `json:"objectName"`
 }
 
-type Topic struct {
+type BrokerTopic struct {
 	ObjectName string `json:"objectName"`
 }
 
-type Queue struct {
+type BrokerQueue struct {
 	ObjectName string `json:"objectName"`
 }
 
@@ -73,7 +75,7 @@ type QueueSubscriber struct {
 	ObjectName string `json:"objectName"`
 }
 
-type Value struct {
+type BrokerValue struct {
 	MemoryLimit                     int                              `json:"MemoryLimit"`
 	MemoryPercentUsage              int                              `json:"MemoryPercentUsage"`
 	StoreLimit                      int                              `json:"StoreLimit"`
@@ -85,8 +87,8 @@ type Value struct {
 	TotalConsumerCount              int                              `json:"TotalConsumerCount"`
 	TopicProducers                  []TopicProducer                  `json:"TopicProducers"`
 	QueueProducers                  []QueueProducer                  `json:"QueueProducers"`
-	Topics                          []Topic                          `json:"Topics"`
-	Queues                          []Queue                          `json:"Queues"`
+	Topics                          []BrokerTopic                    `json:"Topics"`
+	Queues                          []BrokerQueue                    `json:"Queues"`
 	TopicSubscribers                []TopicSubscriber                `json:"TopicSubscribers"`
 	DurableTopicSubscribers         []DurableTopicSubscriber         `json:"DurableTopicSubscribers"`
 	InactiveDurableTopicSubscribers []InactiveDurableTopicSubscriber `json:"InactiveDurableTopicSubscribers"`
@@ -94,9 +96,9 @@ type Value struct {
 }
 
 type Broker struct {
-	Status    int   `json:"status"`
-	Timestamp int   `json:"timestamp"`
-	Value     Value `json:"value"`
+	Status    int         `json:"status"`
+	Timestamp int         `json:"timestamp"`
+	Value     BrokerValue `json:"value"`
 }
 
 type brokerCollector struct {
@@ -169,7 +171,6 @@ func (c *brokerCollector) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 
-	broker := &Broker{}
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(resp.Body)
 	err = json.Unmarshal(buf.Bytes(), broker)
