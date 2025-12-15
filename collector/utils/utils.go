@@ -54,6 +54,12 @@ func FetchData(url string, data *[]byte) error {
 		auth := opts.Jolokia.Username + ":" + opts.Jolokia.Password
 		basicAuth := "Basic " + base64.StdEncoding.EncodeToString([]byte(auth))
 		r.Header.Set("Authorization", basicAuth)
+
+		scheme := "http://"
+		if r.TLS != nil {
+			scheme = "https://"
+		}
+		r.Header.Set("Origin", scheme+r.Host)
 	}
 
 	resp, err := hc.Do(r)
